@@ -1,0 +1,36 @@
+v10.1
+
+cd second-site
+invenio-cli check-requirements --development
+
+#does pipenv install plus installs npm stuff
+invenio-cli install
+
+#containers were already built after first trying to launch a fully docker-ised app
+#running setup failed, so had to
+#invenio-cli services destroy
+
+#This step was quick
+invenio-cli services setup
+
+#Off we go
+invenio-cli run
+
+
+The services:
+
+db:
+
+
+
+
+New invenio packages:
+invenio_records_permissions
+invenio_records_resources
+
+
+
+
+
+
+
