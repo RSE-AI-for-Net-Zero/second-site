@@ -1,3 +1,11 @@
+Instead of
+
+$pip list
+
+run
+
+$pipenv run pip list
+
 v10.1
 
 cd second-site
@@ -21,12 +29,144 @@ The services:
 
 db:
 
-
-
-
 New invenio packages:
 invenio_records_permissions
 invenio_records_resources
+
+
+
+In second-site/
+   celerybeat-schedule.db
+
+   invenio-cli services start --- not there
+   invenio-cli run --- there
+
+   so what does invenio-cli run do?
+   
+   (see https://docs.celeryq.dev/en/main/userguide/periodic-tasks.html
+   	"By default the entries are taken from the beat_schedule setting,
+	but custom stores can also be used, like storing the entries in a SQL database.")
+
+   sqlite3 celerybeat-schedule.db doesn't work
+
+   where is this configured? 
+
+Entry point group 'invenio_celery.tasks'
+
+name='invenio_indexer', value='invenio_indexer.tasks'
+name='invenio_requests', value='invenio_requests.tasks' 
+name='invenio_mail', value='invenio_mail.tasks'
+name='invenio_communities', value='invenio_communities.fixtures.tasks'
+name='invenio_records', value='invenio_records.tasks.api'
+name='invenio_files_rest', value='invenio_files_rest.tasks'
+name='invenio_rdm_records_fixtures', value='invenio_rdm_records.fixtures.tasks'
+name='invenio_rdm_records_services', value='invenio_rdm_records.services.tasks' 
+name='invenio_records_resources', value='invenio_records_resources.tasks'
+name='invenio_drafts_resources', value='invenio_drafts_resources.services.records.tasks'
+name='invenio_accounts', value='invenio_accounts.tasks'
+
+sched =  create_app().config['CELERY_BEAT_SCHEDULE']
+pprint.pprint(sched, indent=4)
+
+{   'accounts_ips': {   'schedule': datetime.timedelta(seconds=21600),
+                        'task': 'invenio_accounts.tasks.delete_ips'},
+    'accounts_sessions': {   'schedule': datetime.timedelta(seconds=3600),
+                             'task': 'invenio_accounts.tasks.clean_session_table'},
+    'draft_resources': {   'schedule': datetime.timedelta(seconds=3600),
+                           'task': 'invenio_drafts_resources.services.records.tasks.cleanup_drafts'},
+    'expire_requests': {   'schedule': <crontab: 3 0 * * * (m/h/d/dM/MY)>,
+                           'task': 'invenio_requests.tasks.check_expired_requests'},
+    'indexer': {   'schedule': datetime.timedelta(seconds=10),
+                   'task': 'invenio_records_resources.tasks.manage_indexer_queues'},
+    'rdm_records': {   'schedule': <crontab: 2 0 * * * (m/h/d/dM/MY)>,
+                       'task': 'invenio_rdm_records.services.tasks.update_expired_embargos'}
+		       }
+
+All of the above are set in invenio_app_rdm/config.py   
+
+
+
+Good to know:
+
+  what happens on pipenv run invenio run ?
+  
+  services are all up and running, so as a guess, launches celery workers, dev server and possibly npm
+  stuff?
+  
+  <venv>/bin/invenio imports and calls invenio_app.cli.cli
+  invenio_app.cli.cli is returned by invenio_base.app.create_cli with invenio_app.factory.create_app
+  passed as argument
+
+  so, what does create_cli(create_app=create_app) do?
+
+  defines fn create_cli_app that takes *args and returns app = create_app(debug = <debug_flag>)
+  defines cli(**params): pass, decordated with @click.group(cls=FlaskGroup, create_app=create_cli_app)
+
+  the latter:
+
+  --- flask/cli.py:559 (_load_plugin_commands)
+  entry point group flask.commands:
+
+name='collect', value='invenio_assets.cli:collect'
+name='tokens', value='invenio_oauth2server.cli:tokens'
+name='access', value='invenio_access.cli:access'
+name='shell', value='flask_shell_ipython:shell'
+name='instance', value='invenio_base.cli:instance'
+name='vocabularies', value='invenio_vocabularies.cli:vocabularies'
+name='communities', value='invenio_communities.cli:communities'
+name='rdm-records', value='invenio_rdm_records.cli:rdm_records'
+name='webpack', value='flask_webpackext.cli:webpack'
+name='roles', value='invenio_accounts.cli:roles'
+name='users', value='invenio_accounts.cli:users'
+
+
+while pipenv run invenio gives
+
+Commands:
+  access        Account commands.
+  alembic       Perform database migrations.
+  collect       Collect static files.
+  communities   Invenio communities commands.
+  db            Database commands.
+  files         File management commands.
+  index         Manage search indices.
+  instance      Instance commands.
+  pid           PID-Store management commands.
+  rdm-records   InvenioRDM records commands.
+  roles         Role commands.
+  routes        Show the routes for the app.
+  run           Run a development server.
+  shell         Runs a shell in the app context.
+  tokens        OAuth2 server token commands.
+  users         User commands.
+  vocabularies  Vocabularies command.
+  webpack       Webpack commands.
+
+The diff being
+    alembic, db, files, index, pid, routes, run
+
+    routes and run look like flask and the other five ?
+
+
+
+invenio_app_rmd.config is very interesting
+
+
+webpack:
+
+when Invenio-Assets is init'd, everything in invenio_assets.webpack entry point group get reg'd.
+
+name='invenio_i18n', value='invenio_i18n.webpack:i18n'
+name='invenio_administration', value='invenio_administration.webpack:theme'
+name='invenio_previewer_theme', value='invenio_previewer.webpack:previewer'
+name='invenio_requests', value='invenio_requests.webpack:requests'
+name='invenio_theme', value='invenio_theme.webpack:theme'
+name='invenio_search_ui', value='invenio_search_ui.webpack:search_ui'
+name='invenio_communities', value='invenio_communities.webpack:communities'
+name='invenio_rdm_records', value='invenio_rdm_records.webpack:theme'
+name='invenio_app_rdm_theme', value='invenio_app_rdm.theme.webpack:theme'
+
+
 
 
 
