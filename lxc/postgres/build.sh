@@ -1,5 +1,3 @@
-#!/bin/bash
-
 #lxc-create -n postgres12 -t download -- -d debian -r bullseye -a amd64
 
 #from https://github.com/docker-library/postgres/blob/master/12/bullseye/Dockerfile
@@ -10,20 +8,49 @@
 
 #grep "postgres" /etc/group | cut 
 
-set -eux; \
-    groupadd -r postgres; \
+set -ux;
+
+POSTGRES_GRP_USR=`grep -F "postgres" /etc/group`
+
+if [ -z $POSTGRES_GRP_USR ]; then
+    groupadd -r postgres;
     useradd -r -g postgres --home-dir=/var/lib/postgresql --shell=/bin/bash postgres; \
     mkdir -p /var/lib/postgresql; \
-    chown -R postgres:postgres /var/lib/postgresql
+    chown -R postgres:postgres /var/lib/postgresql;
+fi
 
 set -ex; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
 	    gnupg \
 	    less;
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*;
 
-#building this as an lxc unprivileged container, so no sudo step-down, and so no gosu
+
+
+# grab gosu for easy step-down from root
+# https://github.com/tianon/gosu/releases
+export GOSU_VERSION=1.17
+set -eux; \
+    savedAptMark="$(apt-mark showmanual)"; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends ca-certificates wget; \
+    rm -rf /var/lib/apt/lists/*; \
+    dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+    wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
+    wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+    gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+    apt-mark auto '.*' > /dev/null; \
+    [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null; \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+    chmod +x /usr/local/bin/gosu; \
+    gosu --version; \
+    gosu nobody true
+        
 set -eux; \
     apt-get update; apt-get install -y --no-install-recommends locales; rm -rf /var/lib/apt/lists/*; \
     echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen; \
@@ -119,12 +146,6 @@ apt-get install -y --no-install-recommends \
 	"postgresql-$PG_MAJOR=$PG_VERSION"; \
 rm -rf /var/lib/apt/lists/*; \
 
-if [ -n "$tempDir" ]; then \
-    apt-get purge -y --auto-remove; \
-    rm -rf "$tempDir" /etc/apt/sources.list.d/temp.list; \
-    fi; \
-    
-find /usr -name '*.pyc' -type f -exec bash -c 'for pyc; do dpkg -S "$pyc" &> /dev/null || rm -vf "$pyc"; done' -- '{}' +; postgres --version
 
-. ./build2.sh
-. ./build3.sh
+
+
