@@ -1,3 +1,10 @@
+if [ -n "$tempDir" ]; then \
+    apt-get purge -y --auto-remove; \
+    rm -rf "$tempDir" /etc/apt/sources.list.d/temp.list; \
+    fi; \
+    
+find /usr -name '*.pyc' -type f -exec bash -c 'for pyc; do dpkg -S "$pyc" &> /dev/null || rm -vf "$pyc"; done' -- '{}' +; postgres --version
+
 set -ex; \
     export PYTHONDONTWRITEBYTECODE=1; \
     dpkgArch="$(dpkg --print-architecture)"; \
@@ -5,7 +12,7 @@ set -ex; \
     case "$dpkgArch" in amd64 | arm64 | ppc64el | s390x) \
 
 	    echo "deb $aptRepo" > /etc/apt/sources.list.d/pgdg.list; \
-		apt-get update; \
+		apt-get update;
 		     ;; \
 		*) \
 echo "deb-src $aptRepo" > /etc/apt/sources.list.d/pgdg.list; \
