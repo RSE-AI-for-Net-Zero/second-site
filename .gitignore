@@ -72,5 +72,5 @@ data/default/*
 data/.minio.sys
 
 # Celery
-celerybeat-schedule
+celerybeat-schedule.db
 **~
