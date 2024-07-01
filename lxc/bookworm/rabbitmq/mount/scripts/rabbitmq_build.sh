@@ -1,5 +1,3 @@
-#### lxc-attach -n test -- apt-get install -y rabbitmq-server
-
 set -eux
 
 apt-get update &&\
@@ -18,8 +16,8 @@ apt-get update &&\
 ##################################################################
 
 
-# the two config files are not created by packages, therefore
-# add these if extra config required
+# In case extra config beyond the defaults are required, create and edit one or both of these
+# two files (which are not created by package debian packages)
 
 #[ -f /etc/rabbitmq/rabbitmq.conf ] || touch /etc/rabbitmq/rabbitmq.conf
 #[ -f /etc/rabbitmq/advanced.config ] || touch /etc/rabbitmq/advanced.config
