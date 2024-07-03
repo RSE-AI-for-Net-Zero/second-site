@@ -1,30 +1,18 @@
-set -eux
+CONFIG_ROOT="../lxc_config.conf"
+NAME="postgres"
 
-BIN_PATH="/usr/lib/postgresql/15/bin"
-CONFIG_PATH="/etc/postgresql/15/main/postgresql.conf"
+echo $'\n'"lxc.mount.entry = ${PWD}/mount home/ none bind 0 0" \
+    | cat ${CONFIG_ROOT} -\
+    | tee -a ${NAME}.conf
 
-apt-get update && \
-    apt-get install -y --no-install-recommends postgresql && \
-    sed -ri "s/^#?(listen_addresses)\s*=\s*\S+.*/\1 = '*'/" ${CONFIG_PATH} && \
-    grep -e "^listen_addresses = '*'" ${CONFIG_PATH}
 
-echo """
-     export PATH=${PATH}:${BIN_PATH}
-""" | tee -a /etc/bash.bashrc
+source ../create_container.sh 
 
-echo $'host\tall\tall\t10.0.3.1/24\ttrust' | tee -a /etc/postgresql/15/main/pg_hba.conf
-
-systemctl restart postgresql
-
-##############################################
-# Test installation
-# 1. create a test database (as postgres user)
-# 2. run python script
-#
-#su postgres
-#createdb testdb
-#
-##############################################
+create_container ${NAME} ${NAME}.conf && \
+    #lxc will store the container config somewhere
+    rm -f ${NAME}.conf && \ 
+systemd-run --user --scope -p "Delegate=yes" -- lxc-start -n ${FULL_NAME} && \
+    lxc-attach -n ${FULL_NAME} -- /home/scripts/postgres_build.sh
 
 
 

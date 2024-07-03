@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Build follows the steps described here
 # https://opensearch.org/docs/latest/install-and-configure/install-opensearch/debian/
 # "Install OpenSeach from an APT repository"
