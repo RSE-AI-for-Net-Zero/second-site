@@ -1,0 +1,37 @@
+Initial config:
+
+(https://opensearch.org/docs/latest/security/)
+
+One admin and one less priviledged user (the app), authenticated with username & password.  Can then add LDAP protocol.
+
+
+(https://opensearch.org/docs/latest/security/configuration/best-practices/)
+
+Questions:
+
+- Indexes stored inside container, or local external volumes mounted?
+
+
+----------------------------------------------------
+Can we authenticate app with client TLS certificate?
+----------------------------------------------------
+opensearchpy.OpenSearch is 'SearchEngine' - the client
+opensearch_dsl is 'dsl'
+
+opensearchpy.OpenSearch = opensearchpy.client.OpenSearch
+
+Confirming path: invenio_search.config -> OpenSearch client:
+	invenio_search.config.SEARCH_CLIENT_CONFIG contains dict(...), passed to
+	OpenSearch (see invenio_search.ext._client_builder (:299)
+						  
+
+1.  Generate self-signed certs (in opensearch_client)
+    (https://opensearch.org/docs/latest/security/configuration/generate-certificates)
+2.  Configure cluster
+    (https://opensearch.org/docs/latest/security/authentication-backends/client-auth/)
+3.  Test with python client
+4.  Configure second-site to use SSL certs
+----------------------------------------------------
+
+
+

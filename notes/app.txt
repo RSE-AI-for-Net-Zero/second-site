@@ -24,17 +24,56 @@ invenio-cli services setup
 #Off we go
 invenio-cli run
 
+CookieCutter
 
+assets are in the instance folder
+----------------------------------------------------------------
+invenio-cli install flow
+----------------------------------------------------------------
+entry points
+
+[console-scripts]
+invenio-cli = invenio_cli.cli.cli:invenio_cli
+
+install command added to click.group (invenio_cli.cli.install:install)
+
+install command:
+
+commands = InstallCommands(cli_config)
+steps = commands.install(pre=pre, dev=dev, flask_env=flask_env)
+.
+.
+.
+run_steps(steps) # --- for step in steps: step.execute()
+
+-- lock dependencies (if not locked already - test for Pipfile.lock)
+-- install locked dependencies (pipenv sync [--pre] [--dev])
+-- update instance path
+-- symlink: invenio.cfg, templates/, app_data/
+-- update statics and assets
+-- -- pipenv run invenio collect --verbose
+-- -- pipenv run invenio webpack clean create
+-- -- pipenv run invenio webpack install
+-- -- _statics()
+-- -- -- _copy_statics_and_assets
+-- -- -- _symlink_assests_templates
+-- -- pipenv run invenio webpack build
+----------------------------------------------------------------
+
+----------------------------------------------------------------
 The services:
+----------------------------------------------------------------
 
 db:
 
 New invenio packages:
 invenio_records_permissions
 invenio_records_resources
+----------------------------------------------------------------
 
-
-
+----------------------------------------------------------------
+Celery tasks
+----------------------------------------------------------------
 In second-site/
    celerybeat-schedule.db
 
@@ -83,7 +122,7 @@ pprint.pprint(sched, indent=4)
 		       }
 
 All of the above are set in invenio_app_rdm/config.py   
-
+----------------------------------------------------------------
 
 
 Good to know:
@@ -151,7 +190,9 @@ The diff being
 
 invenio_app_rmd.config is very interesting
 
-
+----------------------------------------------------------------
+Webpack
+----------------------------------------------------------------
 webpack:
 
 when Invenio-Assets is init'd, everything in invenio_assets.webpack entry point group get reg'd.
@@ -165,7 +206,7 @@ name='invenio_search_ui', value='invenio_search_ui.webpack:search_ui'
 name='invenio_communities', value='invenio_communities.webpack:communities'
 name='invenio_rdm_records', value='invenio_rdm_records.webpack:theme'
 name='invenio_app_rdm_theme', value='invenio_app_rdm.theme.webpack:theme'
-
+----------------------------------------------------------------
 
 
 
