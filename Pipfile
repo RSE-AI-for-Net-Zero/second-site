@@ -8,9 +8,11 @@ check-manifest = ">=0.25"
 
 [packages]
 invenio-app-rdm = {extras = ["postgresql", "opensearch2"], version = "~=10.1.0"}
+ae-data-store-schemas = {git = "git+ssh://git@github.com/AI-for-Net-Zero/AE_data_store_schemas", editable = true}
 uwsgi = ">=2.0"
 uwsgitop = ">=0.11"
 uwsgi-tools = ">=1.1.1"
+invenio-ldapclient = {editable = true, ref = "Imperial_Aeronautics", git = "git+ssh://git@github.com/AI-for-Net-Zero/invenio-ldapclient"}
 
 [requires]
 python_version = "3.9"

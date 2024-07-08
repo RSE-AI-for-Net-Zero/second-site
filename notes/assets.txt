@@ -1,0 +1,26 @@
+invenio_assets
+	- processing & bundling if JS and CSS
+	- CLI for installing and building assets, int'd w/ Webpack and NPM
+
+app.extensions['invenio-assets'] = invenio_assests.InvenioAssests
+
+InvenioAssests.collect = flask_collect.Collect(app)
+InvenioAssests.webpack = flask_webpackext.FlaskWebpackExt(app)
+
+flask_collect - collects static files from blueprints
+
+NOTE: Flask_Collect.config.COLLECT_STORAGE (dev: symlink, but prod: copy).
+
+The install flow:
+
+invenio collect --vebose
+
+(force == true:)
+       invenio webpack clean create
+       invenio webpack install
+       invenio webpack build
+       
+       	       
+      
+
+

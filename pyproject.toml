@@ -1,0 +1,38 @@
+[project]
+name = "second-site"
+version = "0.1"
+description = "Department of Aeronautics data store"
+
+# Declare minimal, unpinned dependencies here, letting pipenv do the work
+
+dependencies = ["invenio-app-rdm",
+		"uwsgi",
+		"uwsgitop",
+		"uwsgi-tools",
+		"ae-data-store-schemas@git+ssh://git@github.com/AI-for-Net-Zero/AE_data_store_schemas",
+		"invenio-ldapclient@git+ssh://git@github.com/AI-for-Net-Zero/invenio-ldapclient@Imperial_Aeronautics"
+		]
+
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.entry-points."invenio_jsonschemas.schemas"]
+second-site-schemas = "AE_data_store_schemas.jsonschemas"
+
+[project.entry-points."invenio_jsonschemas.test_schemas"]
+second-site-schemas-testing = "AE_data_store_schemas_testing.jsonschemas"
+
+[tool.setuptools]
+packages = ["second_site"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+#[tool.coverage.run]
+#branch = true
+#source = ["src/AE_data_store"]

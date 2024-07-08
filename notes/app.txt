@@ -209,8 +209,15 @@ name='invenio_app_rdm_theme', value='invenio_app_rdm.theme.webpack:theme'
 ----------------------------------------------------------------
 
 
+----------------------------------------------------------------
+Service client authentication
+----------------------------------------------------------------
+		client TLS
 
-
+rabbitmq	yes
+opensearch	yes
+postgres	yes
+redis		yes
 
 
 

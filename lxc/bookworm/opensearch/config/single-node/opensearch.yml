@@ -52,7 +52,7 @@ path.logs: /var/log/opensearch
 #
 # Set the bind address to a specific IP (IPv4 or IPv6):
 #
-network.host: 0.0.0.0
+#network.host: 192.168.0.1
 #
 # Set a custom port for HTTP:
 #
@@ -157,5 +157,3 @@ plugins.security.system_indices.indices: [.plugins-ml-agent, .plugins-ml-config,
   .plugins-flow-framework-state]
 node.max_local_storage_nodes: 3
 ######## End OpenSearch Security Demo Configuration ########
-discovery.type: single-node
-plugins.security.disabled: false
